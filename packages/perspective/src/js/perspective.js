@@ -931,6 +931,7 @@ table.prototype._computed_schema =  function() {
         const column = {
             type: undefined,
             input_column: undefined,
+            input_type: undefined,
             computation: undefined
         };
 
@@ -949,6 +950,7 @@ table.prototype._computed_schema =  function() {
 
         // edit this when we need to support multiple input columns
         column.input_column = computed[i].inputs[0];
+        column.input_type = computed[i].input_type;
         column.computation = computed[i].computation;
         computed_schema[column_name] = column;
     }
