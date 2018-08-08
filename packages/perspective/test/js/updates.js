@@ -93,6 +93,32 @@ module.exports = (perspective) => {
             expect(data.concat(data)).toEqual(result);
         });
 
+        it("Partial row `update()`s", async function () {
+            var partial_update = [
+                {'x': 1, 'y':'h'},
+                {'x': 2, 'y':'i'},
+                {'x': 3, 'z': false},
+                {'x': 4, 'z': true}
+            ];
+
+            var expected = [
+                {'x': 1, 'y':'h', 'z': true},
+                {'x': 2, 'y':'i', 'z': false},
+                {'x': 3, 'y':'c', 'z': false},
+                {'x': 4, 'y':'d', 'z': true}
+            ];
+
+            var table = perspective.table(meta);
+            table.update(data);
+            table.update(partial_update);
+            var view = table.view();
+            let result = await view.to_json();
+            expect(expected).toEqual(result);
+        });
+
+
+
+
         it("`update()` called after `view()`", async function () {
             var table = perspective.table(meta);
             var view = table.view();
