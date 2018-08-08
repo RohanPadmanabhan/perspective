@@ -47,7 +47,6 @@ var arrow_indexed_result = [
     {"f32": 5.5, "f64": 5.5, "i64": 5, "i32": 5, "i16": 5, "i8": 5, "bool": true,  "char": "d", "dict": "d", "datetime": +(new Date("2018-01-29"))}
 ];
 
-
 module.exports = (perspective) => {
 
 
@@ -58,6 +57,20 @@ module.exports = (perspective) => {
             table.update(data);
             var view = table.view();
             table.remove([1, 2]);
+            let result = await view.to_json();
+            expect(result.length).toEqual(2);
+            expect(data.slice(2, 4)).toEqual(result);
+        });
+
+        it("multiple removes", async function () {
+            var table = perspective.table(meta, {index: "x"});
+
+            for (var i = 0; i < 20; i++) {
+                table.update(data);
+                table.remove([1, 2]);
+            }
+
+            var view = table.view();
             let result = await view.to_json();
             expect(result.length).toEqual(2);
             expect(data.slice(2, 4)).toEqual(result);
