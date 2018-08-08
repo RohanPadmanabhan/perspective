@@ -19,6 +19,12 @@ var data = [
     {'x': 4, 'y':'d', 'z': false}
 ];
 
+var col_data = {
+    'x': [1, 2, 3, 4],
+    'y': ['a', 'b', 'c', 'd'],
+    'z': [true, false, true, false]
+};
+
 var meta = {
     'x': "integer",
     'y': "string",
@@ -62,20 +68,6 @@ module.exports = (perspective) => {
             expect(data.slice(2, 4)).toEqual(result);
         });
 
-        it("multiple removes", async function () {
-            var table = perspective.table(meta, {index: "x"});
-
-            for (var i = 0; i < 20; i++) {
-                table.update(data);
-                table.remove([1, 2]);
-            }
-
-            var view = table.view();
-            let result = await view.to_json();
-            expect(result.length).toEqual(2);
-            expect(data.slice(2, 4)).toEqual(result);
-        });
-
         it("after an regular data load`", async function () {
             var table = perspective.table(data, {index: "x"});
             var view = table.view();
@@ -85,6 +77,19 @@ module.exports = (perspective) => {
             expect(data.slice(2, 4)).toEqual(result);
         });
 
+        it("multiple removes", async function () {
+            var table = perspective.table(meta, {index: "x"});
+
+            for (var i = 0; i < 50; i++) {
+                table.update(data);
+                table.remove([1, 2]);
+            }
+
+            var view = table.view();
+            let result = await view.to_json();
+            expect(result.length).toEqual(2);
+            expect(data.slice(2, 4)).toEqual(result);
+        });
     });
 
     describe("Updates", function() {
@@ -95,6 +100,36 @@ module.exports = (perspective) => {
             var view = table.view();
             let result = await view.to_json();
             expect(data).toEqual(result);
+        });
+
+        it("Meta constructor then column oriented `update()`", async function () {
+            var table = perspective.table(meta);
+            table.update(col_data);
+            var view = table.view();
+            let result = await view.to_json();
+            expect(result).toEqual(data);
+        });
+
+        it("Column data constructor then column oriented `update()`", async function () {
+            var colUpdate = {
+                'x': [3, 4, 5],
+                'y': ['h', 'i', 'j'],
+                'z': [false, true, false],
+            };
+
+            var expected = [
+                {'x': 1, 'y':'a', 'z': true},
+                {'x': 2, 'y':'b', 'z': false},
+                {'x': 3, 'y':'h', 'z': false},
+                {'x': 4, 'y':'i', 'z': true},
+                {'x': 5, 'y':'j', 'z': false}
+            ];
+
+            var table = perspective.table(col_data);
+            table.update(colUpdate);
+            var view = table.view();
+            let result = await view.to_json();
+            expect(result).toEqual(expected);
         });
 
         it("Multiple `update()`s", async function () {
@@ -126,10 +161,8 @@ module.exports = (perspective) => {
             table.update(partial_update);
             var view = table.view();
             let result = await view.to_json();
-            expect(expected).toEqual(result);
+            expect(result).toEqual(expected);
         });
-
-
 
 
         it("`update()` called after `view()`", async function () {
